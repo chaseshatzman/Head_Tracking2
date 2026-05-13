@@ -1,4 +1,15 @@
 from direct.showbase.ShowBase import ShowBase
+from direct.showbase.ShowBaseGlobal import globalClock
+
+from track import HeadTracker
+
+# ── Integrated stack (same project) ───────────────────────────────────────────
+#   track.py  — HeadTracker: webcam + MediaPipe → self.direction (+ calibration).
+#   test.py   — MyScene: full 3D world; WASD, mouse look, reads head_tracker.
+#   moving.py — Bridge: tick_calibration_only() then run_world_with_head_tracker(tracker).
+# Do not `import test` from Python CLI (stdlib conflict); moving.py loads this file by path.
+# ─────────────────────────────────────────────────────────────────────────────
+
 # imports Panda3D library for the 3D game window
 
 from panda3d.core import (
@@ -22,6 +33,7 @@ from panda3d.core import (
     PNMImage,
     Point3,
     Texture,
+    WindowProperties,
 )
 
 # Imports necessary functions for the 3D game window such as lighting,collision detection, ground detection, and more)
@@ -606,10 +618,14 @@ class MyScene(ShowBase):
                 self._shove_rig_to_cell_corner_then_clear(rig, corner_cell, fmin, fmax, path_bounds, grass_top)
     # Creates slab tower base + 6×(black small, gray large) stack using loops; bias corner within the XY legal rect, rotate 45° left in plan view (about world Z) to create a striped pattern)
    
-    def __init__(self):
+    def __init__(self, head_tracker=None):
         ShowBase.__init__(self)
         self.disableMouse()
     # Runs the main function to create the map, turns off mouse cursor)
+
+        print(
+            "[test.py] Panda3D window opened; map is loading — this world can take 10–30s on first run."
+        )
 
         self.win.setClearColor((0.5, 0.7, 1.0, 1))
         # Sky - sets the background color to a light blue
@@ -772,8 +788,37 @@ class MyScene(ShowBase):
         self.pitch = 0
         self._mouse_ready = False
         self.win.requestProperties(self.win.getProperties())
+
+        if head_tracker is not None:
+            self.head_tracker = head_tracker
+        else:
+            self.head_tracker = HeadTracker(verbose_direction_print=False)
+
+        self.accept("c", self._request_head_calibration)
+
+        foreground = WindowProperties()
+        foreground.setForeground(True)
+        self.win.requestProperties(foreground)
+
+        if head_tracker is None:
+            print(
+                "[test.py] Head tracking webcam should open now (Face Tracking / OpenCV). "
+                "If you only see that window: use Dock or Cmd+Tab to find this Panda game window."
+            )
+            print(
+                "[test.py] Steps: (1) show your face in the webcam overlay, "
+                "(2) press C in OpenCV OR click Panda and press C, "
+                "(3) watch for terminal 'Calibrated', (4) move your head — or use WASD. "
+                "Q on the webcam stops head tracking only."
+            )
+        else:
+            print(
+                "[test.py] Using pre-calibrated HeadTracker from moving.py — "
+                "head + WASD move you; C re-calibrates; Q on webcam stops the camera feed."
+            )
+        self.taskMgr.add(self._head_tracker_tick, "head_tracking")
         self.taskMgr.add(self.update, "update")
-        # Prepares the mouse and starts continuous game loop to run the game 
+        # Prepares the mouse and starts continuous game loop to run the game
 
         self.keys = {"w": False, "s": False, "a": False, "d": False}
         self.accept("w", self.setKey, ["w", True])
@@ -788,6 +833,13 @@ class MyScene(ShowBase):
         
         # Uses the WASD keyboard inputs to move the camera / around the scene, having escape key close the game
 
+    def _request_head_calibration(self):
+        self.head_tracker.calibrate_request = True
+
+    def _head_tracker_tick(self, task):
+        if not self.head_tracker.tick():
+            return task.done
+        return task.cont
 
     def setKey(self, key, value):
         self.keys[key] = value
@@ -795,25 +847,46 @@ class MyScene(ShowBase):
 
     def update(self, task):
         dt = globalClock.getDt()
-        speed = 24
+        speed = 5
     # Updates the function to run every at every frame, calculating the time between frames and setting the player speed to 24
 
-        if self.keys["w"]: self.camera.setY(self.camera, speed * dt)
-        if self.keys["s"]: self.camera.setY(self.camera, -speed * dt)
-        if self.keys["a"]: self.camera.setX(self.camera, -speed * dt)
-        if self.keys["d"]: self.camera.setX(self.camera, speed * dt)
+        if self.keys["w"]:
+            self.camera.setY(self.camera, speed * dt)
+        if self.keys["s"]:
+            self.camera.setY(self.camera, -speed * dt)
+        if self.keys["a"]:
+            self.camera.setX(self.camera, -speed * dt)
+        if self.keys["d"]:
+            self.camera.setX(self.camera, speed * dt)
         # Keyboard movement to move the camera forward, backward, left, and right
 
+        if self.head_tracker.calibrated:
+            turn_rate = 60.0
+            pitch_rate = 50.0
+            md = self.head_tracker.direction
+            if md == "Moving forward":
+                self.camera.setY(self.camera, speed * dt)
+            elif md == "Moving back":
+                self.camera.setY(self.camera, -speed * dt)
+            elif md == "Looking left":
+                self.heading += turn_rate * dt
+            elif md == "Looking right":
+                self.heading -= turn_rate * dt
+            elif md == "Looking up":
+                self.pitch += pitch_rate * dt
+            elif md == "Looking down":
+                self.pitch -= pitch_rate * dt
 
         cx, cy = self.win.getXSize() // 2, self.win.getYSize() // 2
-        md = self.win.getPointer(0)
+        ptr = self.win.getPointer(0)
         if not self._mouse_ready:
             self.win.movePointer(0, cx, cy)
             self._mouse_ready = True
         elif self.win.movePointer(0, cx, cy):
-            self.heading -= (md.getX() - cx) * 0.2
-            self.pitch = max(-80, min(80, self.pitch - (md.getY() - cy) * 0.2))
+            self.heading -= (ptr.getX() - cx) * 0.2
+            self.pitch = max(-80, min(80, self.pitch - (ptr.getY() - cy) * 0.2))
 
+        self.pitch = max(-80, min(80, self.pitch))
         self.camera.setHpr(self.heading, self.pitch, 0)
 
         p = self.camera.getPos()
@@ -829,6 +902,34 @@ class MyScene(ShowBase):
         
         # Rotating the player's view based on the mouse movement, detecting collisions with the ground and adjusting the camera height to the ground level
 
-app = MyScene()
-app.run()
+
+def run_world_with_head_tracker(head_tracker):
+    """Bridge API: connect a calibrated ``track.HeadTracker`` into this world's ``MyScene``.
+
+    Used by ``moving.py`` after calibration. Runs the Panda3D main loop until the
+    user quits.
+
+    **`head_tracker` is not closed here** — the caller must call ``head_tracker.close()``
+    after ``app.run()`` returns (moving.py does that in ``finally``).
+    """
+    app = MyScene(head_tracker=head_tracker)
+    app.run()
+
+
+def create_world_scene(head_tracker=None):
+    """Factory: ``MyScene(head_tracker=…)``. Run with ``scene.run()``; close tracker per ownership rules in ``main()``."""
+    return MyScene(head_tracker=head_tracker)
+
+
+def main():
+    app = MyScene()
+    try:
+        app.run()
+    finally:
+        if hasattr(app, "head_tracker"):
+            app.head_tracker.close()
+
+
+if __name__ == "__main__":
+    main()
 # Runs the game window and starts the game loop

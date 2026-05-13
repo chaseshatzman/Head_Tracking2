@@ -1,0 +1,4 @@
+__pycache__/
+*.py[cod]
+face_landmarker.task
+*.task
