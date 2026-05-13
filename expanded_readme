@@ -9,3 +9,66 @@ Our biggest triumph was running the final product for the first time. Because we
 Finally, our biggest “aha” moment was when we figured out how to implement the arithmetic for the head tracking. Understanding the logic behind the inequalities in relation to the dx, dy, and dz movement allowed us to have the program accurately show direction when our head was moving to that corresponding side. Also, figuring out how to make the labels more accurate for “looking _______” was an aha moment as well. We manipulated the speed, points tracked, sensitivity, etc. until we made it as accurate as possible.
 
 Overall, we really enjoyed building this project and felt that we were able to challenge ourselves. Thank you!!
+
+Attached is a link to a QR code video of us using our code!
+
+https://docs.google.com/document/d/1q4WZ2smgZLGYXSvv1yYSbvaryaUj0u_dDUEVym3cuLs/edit?usp=sharing
+
+
+Progress Updates 
+	Progress Update Week 1 : 
+Chase ← Dots on face for pre-calibration, in order to find prominent landmarks on face and using min/max confidence detection found the main landmarks on the face (Ex: Eye, Nose, Mouth) 
+Made able to detect when face was / not present 
+Added press C to calibrate face button 
+Nainika ← Selected dots on top, bottom, left, right of face and tracked size of difference between points to determine when face was moving left, right, up, down, forwards backwards
+Debugged code to make this determination more accurate.
+Needs to be fixed ← Calibration is still not fully accurate for moving up/down … need to fix next week the up / down and figure out in order to figure out how to make more accurate 
+
+Progress Update Week 2: 	
+
+Chase 
+Fixed debugging issue from before (with measuring difference between vertical points on face as well as horizontal ones) 
+Familiarized Self with Ursina packages to include a brief map (Added Roads using the model = plane functions after Nainika’s codes)
+Nainika 
+Familiarize self with Ursina packages in order to build a mock-sky and mock-ground 
+Started to build first building through utilizing model = “cube” and position and scale parameters to make the correct size and location for world
+Together
+Issue we ran into
+Had an issue with Ursina setup in our coding environment so we had to create a new file in a separate location on our computers and then create a container and rewrite the code there. Then we rewrote the current files in our repository.  
+
+
+	Progress Update Week 3-4: 
+
+Chase 
+Familiarize self with Panda 3D packages and translated our 3-D world from before into new syntax - essentially created a new world that was more efficient to run on our computers 
+Debugged code “moving.py” in order to better connect the two files of the 3D world with head tracking 
+Nainika 
+Debugged syntax from Panda 3D package - changed building colors from the provided colors in the packages to solid colors. 
+“Moving.py” code in order to have  baseline connection of the two files in the 3D world with head tracking 
+Together 
+Issue we ran into 
+Ran into an issue where we pressed “command d” instead of “command s” to save our progress which removed the terminal and created a black screen. discovered that Ursina packages was not fully supported on our computers so had to restart 3D world map using Panda 3D. We solved this by using th Panda 3D packages and we had to create a new file in a separate location on our computers and then create a container and rewrite the code there 
+
+Timeline for Coding
+April 22nd - Met to outline our ideas for the head tracking and basic plan for the 3-D world as well as created files on Curse for program Coder + Debugger = Chase and Nainika (3 hours) 
+April 23rd - Created a calibration screen camera for pre-calibration. Added dots on face to find prominent landmarks on the fake using min/max confidence detection (Ex:Eye, Nose, Mouth) ← Coder = Chase (6 hours)... Debugger = Nainika (5 hours)
+April 24 - Difference between points on top/ bottoms and left/right to determine when face is moving left/right/up/down/fowards/backwards ← Coder = Nainika (4 hours)... Debugger = Chase (2 hours)
+April 25 - Made able to detect when face was / not present and made it so that the “press C” function on the keyboard calibrates the face from a baseline position ← Coder = Chase (5 hours)... Debugger = Nainika (4 hours)
+April 26th - Spent time trying to figure out how to make the tracking more accurate ← Coder = Nainika (4 hours) … Debugger = Chase (3 hours)
+April 28th - Fixes unresolved accuracy issue from before (now measures the difference between vertical points on the face and well as the horizontal points) ← Coder = Chase (4 hours) … Debugger = Nainika (3 hours) 
+April 30th - Started to create gameplay screen by using Ursina packages including green ground and added roads (using model=plane functions) ← Coder = Nainika (4 hours) … Debugger = Chase (4 hours) 
+May 2nd - Had an issue with Ursina setup in our coding environment so we had to create a new file in a separate location on our computers and then create a container and rewrite the code there. Then we rewrote the current files in our repository ← Coder = Chase (10 hours) … Debugger = Nainika (8 Hours) 
+Note: This deleted our github repository so we had to create a new repository, which unfortunately got rid of our previous commits (Met with Bowen to help with this bug and was told it was okay that the commits were removed) 
+May 3rd - Continued to add buildings in different locations ← Coder = Nainika (3 Hours) … Debugger - Chase (2 Hours) 
+May 4th - Continued to add buildings in different locations ← Coder = Chase (3 Hours) … Debugger = Nainika (3 Hours) 
+May 5th - Continued to add buildings in different locations ← Coder = Nainika (3 Hours) … Debugger = Chase (2 Hours) 
+May 9th - Learned basic software in order to combine 3-D world gameplay screen with head tracking technology ← Coder = Chase (4 Hours) … Debugger = Nanika (3 Hours) 
+May 10th - Finalized gameplay screen (adjusted colors on building, altered position, and fixed lighting), however ran into an issue where we pressed “command d” instead of “command s” to save our progress which removed the terminal and created a black screen. Tried to resolve / debug, but was not fully successful ← Coder = Nainika (6 Hours)... Debugger = Chase (5 Hours) 
+May 11th - Met with Bowen to fix bug issue – fixed by using Panda 3D as opposed to using Ursina packages (discovered that Ursina packages was not fully supported on our computers so had to restart 3D world map using Panda 3D) ← Coder = Chase (7 hours) … Debugger = Nainika 7 hours) 
+Note: This deleted our github repository so we had to create a new repository, which unfortunately got rid of our previous commits (Met with Bowen to help with this bug and was told it was okay that the commits were removed) 
+May 12th - Finalized gameplay map using the new Panda 3D functions (Based the new code off of the previous Ursina world and altered it a bit), started to combine the headtracking with the 3-D world ← Coder = Nainika (7 Hours) … Debugger = Chase (5 Hours)
+May 13th - Finalized head-tracking in our 3D world and altered code to look more presentable / readable. Also finished our github README and Repo ← Coder = Chase (3 Hours) … Debugger = Nainika (2 Hours) 
+Chase = 68 Hours 
+Nainika = 69 Hours 
+
+Total Amount of Combined Hours = 137 hours
